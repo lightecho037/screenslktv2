@@ -102,6 +102,9 @@ class ScreenCaptureApp:
     def __init__(self):
         self.tray_icon = None
         self.annotation_windows = []
+        self.overlay = None  # Store overlay to prevent garbage collection
+        self.screenshot = None  # Store screenshot for reuse
+        self.hotkey_registered = False
         self.setup_tray_icon()
         self.setup_hotkeys()
         
@@ -115,7 +118,7 @@ class ScreenCaptureApp:
         painter = QPainter(icon_pixmap)
         painter.setPen(QPen(QColor(255, 255, 255), 8))
         painter.drawRect(10, 10, 44, 44)
-        painter.end()
+        painter.end()  # Explicitly end painter
         
         self.tray_icon.setIcon(QIcon(icon_pixmap))
         
@@ -142,30 +145,49 @@ class ScreenCaptureApp:
         """Set up global hotkeys."""
         try:
             keyboard.add_hotkey('f1', self.start_capture)
+            self.hotkey_registered = True
         except Exception as e:
             print(f"Warning: Could not register hotkey F1: {e}")
+            print("This may require administrator privileges on Windows.")
             print("You can still use the tray icon menu to capture.")
+    
+    def cleanup(self):
+        """Clean up resources before exit."""
+        if self.hotkey_registered:
+            try:
+                keyboard.unhook_all()
+            except Exception as e:
+                print(f"Warning: Could not unregister hotkeys: {e}")
     
     def start_capture(self):
         """Start the screen capture process."""
-        # Take screenshot of all screens
+        # Take screenshot of all screens (only once)
         screen = QGuiApplication.primaryScreen()
-        screenshot = screen.grabWindow(0)
+        self.screenshot = screen.grabWindow(0)
         
         # Show selection overlay
-        overlay = SelectionOverlay(screenshot)
-        overlay.selection_made.connect(self.on_selection_made)
+        self.overlay = SelectionOverlay(self.screenshot)
+        self.overlay.selection_made.connect(self.on_selection_made)
         
     def on_selection_made(self, rect):
         """Handle the selection completion."""
-        # Capture the selected region
-        screen = QGuiApplication.primaryScreen()
-        screenshot = screen.grabWindow(0)
+        # Use the stored screenshot instead of capturing again
+        if self.screenshot is None:
+            return
         
         # Crop to selected region
-        cropped = screenshot.copy(rect)
+        cropped = self.screenshot.copy(rect)
+        
+        # Clear the stored screenshot to free memory
+        self.screenshot = None
         
         # Open annotation window
         annotation_window = AnnotationWindow(cropped, rect.topLeft())
+        annotation_window.destroyed.connect(lambda: self.remove_window(annotation_window))
         annotation_window.show()
         self.annotation_windows.append(annotation_window)
+    
+    def remove_window(self, window):
+        """Remove closed annotation window from the list."""
+        if window in self.annotation_windows:
+            self.annotation_windows.remove(window)

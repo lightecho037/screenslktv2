@@ -4,12 +4,10 @@ Annotation window for captured screenshots.
 
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
                              QToolBar, QAction, QColorDialog, QInputDialog,
-                             QFileDialog, QApplication, QLabel, QSpinBox)
+                             QFileDialog, QApplication, QLabel, QSpinBox, QMessageBox)
 from PyQt5.QtCore import Qt, QPoint, QRect, pyqtSignal
 from PyQt5.QtGui import (QPainter, QPen, QColor, QPixmap, QImage, QCursor,
                         QFont, QPainterPath, QPolygonF)
-import io
-from PIL import Image
 
 
 class AnnotationTool:
@@ -23,6 +21,9 @@ class AnnotationTool:
 
 class AnnotationWindow(QWidget):
     """Window for displaying and annotating captured screenshots."""
+    
+    # Constants
+    TOOLBAR_HEIGHT = 40
     
     def __init__(self, screenshot, original_pos=None):
         super().__init__()
@@ -66,7 +67,7 @@ class AnnotationWindow(QWidget):
         self.setLayout(layout)
         
         # Set window size
-        self.resize(self.screenshot.width(), self.screenshot.height() + 40)
+        self.resize(self.screenshot.width(), self.screenshot.height() + self.TOOLBAR_HEIGHT)
         
     def create_toolbar(self):
         """Create the toolbar with annotation tools."""
@@ -243,14 +244,14 @@ class AnnotationWindow(QWidget):
             
             # Draw arrowhead
             arrow_size = 10
-            angle = QPoint(end.x() - start.x(), end.y() - start.y())
             
-            # Simple arrowhead (triangle)
+            # Calculate direction vector
             dx = end.x() - start.x()
             dy = end.y() - start.y()
             length = (dx*dx + dy*dy) ** 0.5
             
-            if length > 0:
+            # Only draw arrowhead if line is long enough
+            if length > 1e-6:
                 # Normalize
                 dx /= length
                 dy /= length
@@ -280,7 +281,7 @@ class AnnotationWindow(QWidget):
     def mousePressEvent(self, event):
         """Handle mouse press events."""
         # Check if clicking on toolbar area
-        if event.pos().y() < 40:
+        if event.pos().y() < self.TOOLBAR_HEIGHT:
             if event.button() == Qt.LeftButton:
                 self.dragging = True
                 self.drag_position = event.globalPos() - self.frameGeometry().topLeft()
@@ -288,7 +289,7 @@ class AnnotationWindow(QWidget):
             
         # Handle annotation tools
         if event.button() == Qt.LeftButton:
-            pos = event.pos() - QPoint(0, 40)  # Adjust for toolbar
+            pos = event.pos() - QPoint(0, self.TOOLBAR_HEIGHT)  # Adjust for toolbar
             
             if self.current_tool == AnnotationTool.PEN:
                 self.is_drawing = True
@@ -332,7 +333,7 @@ class AnnotationWindow(QWidget):
             return
             
         if self.is_drawing:
-            pos = event.pos() - QPoint(0, 40)
+            pos = event.pos() - QPoint(0, self.TOOLBAR_HEIGHT)
             
             if self.current_tool == AnnotationTool.PEN:
                 if self.current_annotation:
@@ -368,12 +369,26 @@ class AnnotationWindow(QWidget):
         )
         
         if file_path:
-            # Get the current pixmap with annotations
-            pixmap = self.image_label.pixmap()
-            pixmap.save(file_path)
+            try:
+                # Get the current pixmap with annotations
+                pixmap = self.image_label.pixmap()
+                if pixmap is None:
+                    QMessageBox.warning(self, "Save Error", "No image to save.")
+                    return
+                
+                if not pixmap.save(file_path):
+                    QMessageBox.warning(self, "Save Error", 
+                                      f"Failed to save image to {file_path}")
+            except Exception as e:
+                QMessageBox.critical(self, "Save Error", 
+                                   f"An error occurred while saving: {str(e)}")
             
     def copy_to_clipboard(self):
         """Copy the annotated image to clipboard."""
         pixmap = self.image_label.pixmap()
+        if pixmap is None:
+            QMessageBox.warning(self, "Copy Error", "No image to copy.")
+            return
+        
         clipboard = QApplication.clipboard()
         clipboard.setPixmap(pixmap)
