@@ -4,7 +4,7 @@ REM This batch file starts the screen capture application
 
 echo Starting Screen Capture Tool...
 echo.
-echo Press F1 to capture screen
+echo Press ALT+F2 to capture screen
 echo Right-click tray icon to access menu
 echo.
 

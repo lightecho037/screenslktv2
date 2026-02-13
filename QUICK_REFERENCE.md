@@ -18,7 +18,7 @@ python main.py
 
 | Key | Action |
 |-----|--------|
-| **F1** | Start screen capture |
+| **ALT+F2** | Start screen capture |
 | **ESC** | Cancel selection |
 | **Click + Drag** | Select region |
 
@@ -35,7 +35,7 @@ python main.py
 ## Common Tasks
 
 ### Capture Screen Region
-1. Press **F1** (or right-click tray icon → "Capture Screen")
+1. Press **ALT+F2** (or right-click tray icon → "Capture Screen")
 2. Click and drag to select region
 3. Release mouse to capture
 
@@ -63,7 +63,7 @@ python main.py
 
 ## Troubleshooting Quick Fixes
 
-### F1 Hotkey Not Working
+### ALT+F2 Hotkey Not Working
 - Run as Administrator
 - Or use tray icon menu instead
 
@@ -89,7 +89,7 @@ pip install -r requirements.txt --force-reinstall
 ## Tips & Tricks
 
 1. **Precise Selection**: Use zoom in your display settings for pixel-perfect selection
-2. **Quick Capture**: F1 is fastest way to capture
+2. **Quick Capture**: ALT+F2 is fastest way to capture
 3. **Color Coding**: Use different colors for different types of annotations
 4. **Text Size**: Currently 12pt, adjustable in future versions
 5. **Multiple Windows**: You can have multiple annotation windows open

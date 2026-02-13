@@ -14,13 +14,13 @@ System Tray Area:
 
 Right-click menu:
 ┌──────────────────────────────────┐
-│  Capture Screen (F1)             │
+│  Capture Screen (ALT+F2)         │
 │  ──────────────────────────────  │
 │  Quit                            │
 └──────────────────────────────────┘
 ```
 
-## 2. Selection Overlay (After pressing F1)
+## 2. Selection Overlay (After pressing ALT+F2)
 
 The entire screen darkens, and you can select a region:
 
@@ -261,7 +261,7 @@ Start Application
 [Tray Icon appears]
       │
       ├─► Right-click: Show Menu
-      └─► Press F1: Start Capture
+      └─► Press ALT+F2: Start Capture
             │
             ▼
       [Selection Overlay]

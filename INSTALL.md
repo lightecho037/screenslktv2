@@ -73,7 +73,7 @@ The application will start and minimize to the system tray.
 ### Hotkey not working
 
 - Try running as Administrator
-- Check if another application is using F1
+- Check if another application is using ALT+F2
 - Use the tray icon menu instead
 
 ### Application doesn't appear in tray

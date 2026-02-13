@@ -125,7 +125,7 @@ class ScreenCaptureApp:
         # Create menu
         menu = QMenu()
         
-        capture_action = QAction("Capture Screen (F1)", None)
+        capture_action = QAction("Capture Screen (ALT+F2)", None)
         capture_action.triggered.connect(self.start_capture)
         menu.addAction(capture_action)
         
@@ -139,15 +139,15 @@ class ScreenCaptureApp:
         self.tray_icon.show()
         
         # Set tooltip
-        self.tray_icon.setToolTip("Screen Capture Tool - Press F1 to capture")
+        self.tray_icon.setToolTip("Screen Capture Tool - Press ALT+F2 to capture")
         
     def setup_hotkeys(self):
         """Set up global hotkeys."""
         try:
-            keyboard.add_hotkey('f1', self.start_capture)
+            keyboard.add_hotkey('alt+f2', self.start_capture)
             self.hotkey_registered = True
         except Exception as e:
-            print(f"Warning: Could not register hotkey F1: {e}")
+            print(f"Warning: Could not register hotkey ALT+F2: {e}")
             print("This may require administrator privileges on Windows.")
             print("You can still use the tray icon menu to capture.")
     

@@ -66,7 +66,7 @@
 ## Data Flow
 
 ```
-User Action (F1 or Tray Menu)
+User Action (ALT+F2 or Tray Menu)
         │
         ▼
 ScreenCaptureApp.start_capture()

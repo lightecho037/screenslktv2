@@ -5,7 +5,7 @@ A powerful Python-based screen capture and annotation tool similar to Snipaste. 
 ## Features
 
 - 🖼️ **Screen Region Capture**: Select and capture any region of your screen
-- ⌨️ **Global Hotkeys**: Use F1 to quickly capture screen (customizable)
+- ⌨️ **Global Hotkeys**: Use ALT+F2 to quickly capture screen (customizable)
 - 🎨 **Annotation Tools**:
   - ✏️ Pen/Drawing tool for freehand annotations
   - 📝 Text annotations
@@ -45,11 +45,11 @@ The application will minimize to the system tray. Look for the screen capture ic
 ### Capturing Screen
 
 **Method 1: Global Hotkey**
-- Press `F1` anywhere on your system to start capturing
+- Press `ALT+F2` anywhere on your system to start capturing
 
 **Method 2: System Tray**
 - Right-click the tray icon
-- Select "Capture Screen (F1)"
+- Select "Capture Screen (ALT+F2)"
 
 ### Selecting Region
 
@@ -109,7 +109,7 @@ The application is organized into clean, modular classes:
 
 ### Hotkey Not Working
 
-If F1 hotkey doesn't work:
+If ALT+F2 hotkey doesn't work:
 - The application may not have sufficient permissions
 - Try running as administrator
 - Use the tray icon menu as an alternative

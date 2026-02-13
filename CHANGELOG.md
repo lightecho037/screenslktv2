@@ -2,12 +2,18 @@
 
 All notable changes to the Screen Capture & Annotation Tool will be documented in this file.
 
+## [1.1.0] - 2026-02-13
+
+### Changed
+- Updated global hotkey from F1 to ALT+F2 for better compatibility
+- Updated all documentation to reflect new hotkey
+
 ## [1.0.0] - 2026-01-30
 
 ### Added
 - Initial release of the screen capture and annotation tool
 - Screen region selection with visual overlay
-- Global hotkey support (F1) for quick capture
+- Global hotkey support (ALT+F2) for quick capture
 - System tray integration for easy access
 - Annotation tools:
   - Pen tool for freehand drawing

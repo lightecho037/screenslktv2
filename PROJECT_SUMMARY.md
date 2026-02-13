@@ -19,7 +19,7 @@ This implementation provides a complete screen capture and annotation tool with 
    - `ScreenCaptureApp` class: Main application controller
    - `SelectionOverlay` class: Interactive region selection overlay
    - System tray integration
-   - Global hotkey support (F1)
+   - Global hotkey support (ALT+F2)
    - Screenshot management
 
 3. **annotation_window.py** - Annotation interface
@@ -75,7 +75,7 @@ This implementation provides a complete screen capture and annotation tool with 
 ✅ Efficient single-capture approach
 
 ### Global Hotkeys
-✅ F1 hotkey for quick capture
+✅ ALT+F2 hotkey for quick capture
 ✅ Graceful fallback if hotkey fails
 ✅ Proper cleanup on exit
 
@@ -173,7 +173,7 @@ run.bat
 ```
 
 ### Capturing
-1. Press F1 or use tray icon menu
+1. Press ALT+F2 or use tray icon menu
 2. Click and drag to select region
 3. Release to capture
 
