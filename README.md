@@ -107,6 +107,21 @@ The application is organized into clean, modular classes:
 
 ## Troubleshooting
 
+### Screen Capture Not Working
+
+If pressing ALT+F2 doesn't show the capture overlay:
+
+1. **Check the console output**: Run the application from command line using `python main.py` to see debug messages
+   - You should see "ALT+F2 pressed - starting capture..." when you press the hotkey
+   - You should see "Capturing screen..." and "Screenshot captured: WxH" when capture succeeds
+   - If you see error messages, they will indicate which capture method failed
+
+2. **Verify the hotkey is registered**: Look for "ALT+F2 hotkey registered successfully" message on startup
+
+3. **Try running as administrator**: On Windows, some applications may need elevated privileges to register global hotkeys
+
+4. **Use the tray icon as alternative**: Right-click the tray icon and select "Capture Screen (ALT+F2)"
+
 ### Hotkey Not Working
 
 If ALT+F2 hotkey doesn't work:
