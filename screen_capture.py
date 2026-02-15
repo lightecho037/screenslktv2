@@ -146,17 +146,26 @@ class ScreenCaptureApp:
     def setup_hotkeys(self):
         """Set up global hotkeys."""
         try:
-            keyboard.add_hotkey('alt+f2', self._on_hotkey_pressed)
             # Start keyboard listener in background thread (only if not already started)
             if self.listener_thread is None or not self.listener_thread.is_alive():
-                self.listener_thread = threading.Thread(target=keyboard.wait, daemon=True)
+                self.listener_thread = threading.Thread(target=self._run_keyboard_listener, daemon=True)
                 self.listener_thread.start()
+            
+            # Register hotkey after listener is running
+            keyboard.add_hotkey('alt+f2', self._on_hotkey_pressed)
             self.hotkey_registered = True
             print("ALT+F2 hotkey registered successfully")
         except Exception as e:
             print(f"Warning: Could not register hotkey ALT+F2: {e}")
             print("This may require administrator privileges on Windows.")
             print("You can still use the tray icon menu to capture.")
+    
+    def _run_keyboard_listener(self):
+        """Run the keyboard listener (runs in background thread)."""
+        try:
+            keyboard.wait()
+        except Exception as e:
+            print(f"Keyboard listener error: {e}")
     
     def cleanup(self):
         """Clean up resources before exit."""
