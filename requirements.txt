@@ -1,0 +1,4 @@
+PyQt5>=5.15.0,<5.16.0
+pillow>=9.0.0,<11.0.0
+pywin32>=300; sys_platform == 'win32'
+keyboard>=0.13.5
