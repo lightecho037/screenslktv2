@@ -22,7 +22,7 @@ python -c "import PyQt5" >nul 2>&1
 if errorlevel 1 (
     echo Error: Required dependencies are not installed
     echo.
-    echo Installing dependencies...
+    echo Installing dependencies (this may take a few minutes)...
     echo.
     python -m pip install -r requirements.txt
     if errorlevel 1 (
