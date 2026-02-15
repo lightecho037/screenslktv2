@@ -34,6 +34,8 @@ class SelectionOverlay(QWidget):
         self.setWindowState(Qt.WindowFullScreen)
         self.setCursor(Qt.CrossCursor)
         self.showFullScreen()
+        self.raise_()  # Bring window to front
+        self.activateWindow()  # Activate the window to receive input
         
     def paintEvent(self, event):
         """Paint the overlay with selection rectangle."""
