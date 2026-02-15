@@ -3,9 +3,10 @@ Screen capture functionality with region selection.
 """
 
 import sys
+import threading
 from PyQt5.QtWidgets import (QApplication, QWidget, QSystemTrayIcon, QMenu, 
                              QAction, qApp)
-from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal
+from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal, QTimer
 from PyQt5.QtGui import (QPainter, QPen, QColor, QPixmap, QGuiApplication, 
                         QScreen, QIcon, QCursor)
 import keyboard
@@ -105,6 +106,7 @@ class ScreenCaptureApp:
         self.overlay = None  # Store overlay to prevent garbage collection
         self.screenshot = None  # Store screenshot for reuse
         self.hotkey_registered = False
+        self.listener_thread = None  # Track listener thread
         self.setup_tray_icon()
         self.setup_hotkeys()
         
@@ -144,12 +146,26 @@ class ScreenCaptureApp:
     def setup_hotkeys(self):
         """Set up global hotkeys."""
         try:
-            keyboard.add_hotkey('alt+f2', self.start_capture)
+            # Start keyboard listener in background thread (only if not already started)
+            if self.listener_thread is None or not self.listener_thread.is_alive():
+                self.listener_thread = threading.Thread(target=self._run_keyboard_listener, daemon=True)
+                self.listener_thread.start()
+            
+            # Register hotkey after listener is running
+            keyboard.add_hotkey('alt+f2', self._on_hotkey_pressed)
             self.hotkey_registered = True
+            print("ALT+F2 hotkey registered successfully")
         except Exception as e:
             print(f"Warning: Could not register hotkey ALT+F2: {e}")
             print("This may require administrator privileges on Windows.")
             print("You can still use the tray icon menu to capture.")
+    
+    def _run_keyboard_listener(self):
+        """Run the keyboard listener (runs in background thread)."""
+        try:
+            keyboard.wait()
+        except Exception as e:
+            print(f"Keyboard listener error: {e}")
     
     def cleanup(self):
         """Clean up resources before exit."""
@@ -159,8 +175,13 @@ class ScreenCaptureApp:
             except Exception as e:
                 print(f"Warning: Could not unregister hotkeys: {e}")
     
+    def _on_hotkey_pressed(self):
+        """Callback for hotkey press (runs in keyboard listener thread)."""
+        # Queue the capture on the Qt main thread to avoid threading issues
+        QTimer.singleShot(0, self.start_capture)
+    
     def start_capture(self):
-        """Start the screen capture process."""
+        """Start the screen capture process (must run on Qt main thread)."""
         # Take screenshot of all screens (only once)
         screen = QGuiApplication.primaryScreen()
         self.screenshot = screen.grabWindow(0)
