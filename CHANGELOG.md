@@ -2,6 +2,23 @@
 
 All notable changes to the Screen Capture & Annotation Tool will be documented in this file.
 
+## [1.1.1] - 2026-02-15
+
+### Fixed
+- Fixed screen capture not working on Windows - screenshot was not being captured
+  - Replaced unreliable `screen.grabWindow(0)` with multiple fallback methods
+  - Added three different capture methods for maximum compatibility
+  - Added proper error handling and debug logging
+- Fixed selection overlay not appearing in foreground
+  - Added `raise_()` and `activateWindow()` to ensure overlay is visible and receives input
+- Improved troubleshooting with debug output
+  - Added console logging for capture events
+  - Logs show which capture method succeeded or which failed
+
+### Added
+- Debug logging throughout screen capture process
+- Comprehensive troubleshooting documentation in README
+
 ## [1.1.0] - 2026-02-13
 
 ### Changed
