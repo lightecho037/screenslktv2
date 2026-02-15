@@ -5,7 +5,7 @@ Screen capture functionality with region selection.
 import sys
 import threading
 from PyQt5.QtWidgets import (QApplication, QWidget, QSystemTrayIcon, QMenu, 
-                             QAction, qApp)
+                             QAction, qApp, QDesktopWidget)
 from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal, QTimer
 from PyQt5.QtGui import (QPainter, QPen, QColor, QPixmap, QGuiApplication, 
                         QScreen, QIcon, QCursor)
@@ -177,18 +177,38 @@ class ScreenCaptureApp:
     
     def _on_hotkey_pressed(self):
         """Callback for hotkey press (runs in keyboard listener thread)."""
+        print("ALT+F2 pressed - starting capture...")
         # Queue the capture on the Qt main thread to avoid threading issues
         QTimer.singleShot(0, self.start_capture)
     
     def start_capture(self):
         """Start the screen capture process (must run on Qt main thread)."""
-        # Take screenshot of all screens (only once)
-        screen = QGuiApplication.primaryScreen()
-        self.screenshot = screen.grabWindow(0)
-        
-        # Show selection overlay
-        self.overlay = SelectionOverlay(self.screenshot)
-        self.overlay.selection_made.connect(self.on_selection_made)
+        try:
+            print("Capturing screen...")
+            # Take screenshot of primary screen
+            screen = QGuiApplication.primaryScreen()
+            if screen is None:
+                print("Error: No screen found")
+                return
+            
+            # Use grabWindow with desktop window ID for Windows compatibility
+            # QScreen.grabWindow() without arguments captures the entire screen
+            self.screenshot = screen.grabWindow(QApplication.desktop().winId())
+            
+            if self.screenshot is None or self.screenshot.isNull():
+                print("Error: Screenshot capture failed")
+                return
+            
+            print(f"Screenshot captured: {self.screenshot.width()}x{self.screenshot.height()}")
+            
+            # Show selection overlay
+            self.overlay = SelectionOverlay(self.screenshot)
+            self.overlay.selection_made.connect(self.on_selection_made)
+            print("Selection overlay shown")
+        except Exception as e:
+            print(f"Error capturing screen: {e}")
+            import traceback
+            traceback.print_exc()
         
     def on_selection_made(self, rect):
         """Handle the selection completion."""
