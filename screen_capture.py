@@ -3,9 +3,10 @@ Screen capture functionality with region selection.
 """
 
 import sys
+import threading
 from PyQt5.QtWidgets import (QApplication, QWidget, QSystemTrayIcon, QMenu, 
                              QAction, qApp)
-from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal
+from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal, QTimer
 from PyQt5.QtGui import (QPainter, QPen, QColor, QPixmap, QGuiApplication, 
                         QScreen, QIcon, QCursor)
 import keyboard
@@ -144,8 +145,12 @@ class ScreenCaptureApp:
     def setup_hotkeys(self):
         """Set up global hotkeys."""
         try:
-            keyboard.add_hotkey('alt+f2', self.start_capture)
+            keyboard.add_hotkey('alt+f2', self._on_hotkey_pressed)
+            # Start keyboard listener in background thread
+            listener_thread = threading.Thread(target=keyboard.wait, daemon=True)
+            listener_thread.start()
             self.hotkey_registered = True
+            print("ALT+F2 hotkey registered successfully")
         except Exception as e:
             print(f"Warning: Could not register hotkey ALT+F2: {e}")
             print("This may require administrator privileges on Windows.")
@@ -159,8 +164,13 @@ class ScreenCaptureApp:
             except Exception as e:
                 print(f"Warning: Could not unregister hotkeys: {e}")
     
+    def _on_hotkey_pressed(self):
+        """Callback for hotkey press (runs in keyboard listener thread)."""
+        # Queue the capture on the Qt main thread to avoid threading issues
+        QTimer.singleShot(0, self.start_capture)
+    
     def start_capture(self):
-        """Start the screen capture process."""
+        """Start the screen capture process (must run on Qt main thread)."""
         # Take screenshot of all screens (only once)
         screen = QGuiApplication.primaryScreen()
         self.screenshot = screen.grabWindow(0)
