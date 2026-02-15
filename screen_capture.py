@@ -185,18 +185,45 @@ class ScreenCaptureApp:
         """Start the screen capture process (must run on Qt main thread)."""
         try:
             print("Capturing screen...")
-            # Take screenshot of primary screen
+            # Take screenshot of primary screen using the most reliable method
             screen = QGuiApplication.primaryScreen()
             if screen is None:
                 print("Error: No screen found")
                 return
             
-            # Use grabWindow with desktop window ID for Windows compatibility
-            # QScreen.grabWindow() without arguments captures the entire screen
-            self.screenshot = screen.grabWindow(QApplication.desktop().winId())
+            # Try multiple methods to capture screen (for cross-platform compatibility)
+            self.screenshot = None
+            
+            # Method 1: Capture entire virtual screen (most reliable on Windows)
+            try:
+                self.screenshot = screen.grabWindow(0, 
+                                                   screen.geometry().x(),
+                                                   screen.geometry().y(),
+                                                   screen.geometry().width(),
+                                                   screen.geometry().height())
+            except Exception as e:
+                print(f"Method 1 failed: {e}")
+            
+            # Method 2: Use desktop widget (fallback)
+            if self.screenshot is None or self.screenshot.isNull():
+                try:
+                    desktop = QApplication.desktop()
+                    self.screenshot = screen.grabWindow(desktop.winId())
+                except Exception as e:
+                    print(f"Method 2 failed: {e}")
+            
+            # Method 3: Use screen geometry directly (last resort)
+            if self.screenshot is None or self.screenshot.isNull():
+                try:
+                    geometry = screen.geometry()
+                    self.screenshot = screen.grabWindow(QApplication.desktop().winId(),
+                                                       geometry.x(), geometry.y(),
+                                                       geometry.width(), geometry.height())
+                except Exception as e:
+                    print(f"Method 3 failed: {e}")
             
             if self.screenshot is None or self.screenshot.isNull():
-                print("Error: Screenshot capture failed")
+                print("Error: All screenshot capture methods failed")
                 return
             
             print(f"Screenshot captured: {self.screenshot.width()}x{self.screenshot.height()}")
