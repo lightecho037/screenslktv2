@@ -106,6 +106,7 @@ class ScreenCaptureApp:
         self.overlay = None  # Store overlay to prevent garbage collection
         self.screenshot = None  # Store screenshot for reuse
         self.hotkey_registered = False
+        self.listener_thread = None  # Track listener thread
         self.setup_tray_icon()
         self.setup_hotkeys()
         
@@ -146,9 +147,10 @@ class ScreenCaptureApp:
         """Set up global hotkeys."""
         try:
             keyboard.add_hotkey('alt+f2', self._on_hotkey_pressed)
-            # Start keyboard listener in background thread
-            listener_thread = threading.Thread(target=keyboard.wait, daemon=True)
-            listener_thread.start()
+            # Start keyboard listener in background thread (only if not already started)
+            if self.listener_thread is None or not self.listener_thread.is_alive():
+                self.listener_thread = threading.Thread(target=keyboard.wait, daemon=True)
+                self.listener_thread.start()
             self.hotkey_registered = True
             print("ALT+F2 hotkey registered successfully")
         except Exception as e:
