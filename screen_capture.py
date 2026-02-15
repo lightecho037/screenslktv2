@@ -4,6 +4,7 @@ Screen capture functionality with region selection.
 
 import sys
 import threading
+import logging
 from PyQt5.QtWidgets import (QApplication, QWidget, QSystemTrayIcon, QMenu, 
                              QAction, qApp, QDesktopWidget)
 from PyQt5.QtCore import Qt, QRect, QPoint, pyqtSignal, QTimer
@@ -11,6 +12,13 @@ from PyQt5.QtGui import (QPainter, QPen, QColor, QPixmap, QGuiApplication,
                         QScreen, QIcon, QCursor)
 import keyboard
 from annotation_window import AnnotationWindow
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 class SelectionOverlay(QWidget):
@@ -156,18 +164,18 @@ class ScreenCaptureApp:
             # Register hotkey after listener is running
             keyboard.add_hotkey('alt+f2', self._on_hotkey_pressed)
             self.hotkey_registered = True
-            print("ALT+F2 hotkey registered successfully")
+            logger.info("ALT+F2 hotkey registered successfully")
         except Exception as e:
-            print(f"Warning: Could not register hotkey ALT+F2: {e}")
-            print("This may require administrator privileges on Windows.")
-            print("You can still use the tray icon menu to capture.")
+            logger.warning(f"Could not register hotkey ALT+F2: {e}")
+            logger.info("This may require administrator privileges on Windows.")
+            logger.info("You can still use the tray icon menu to capture.")
     
     def _run_keyboard_listener(self):
         """Run the keyboard listener (runs in background thread)."""
         try:
             keyboard.wait()
         except Exception as e:
-            print(f"Keyboard listener error: {e}")
+            logger.error(f"Keyboard listener error: {e}")
     
     def cleanup(self):
         """Clean up resources before exit."""
@@ -175,22 +183,22 @@ class ScreenCaptureApp:
             try:
                 keyboard.unhook_all()
             except Exception as e:
-                print(f"Warning: Could not unregister hotkeys: {e}")
+                logger.warning(f"Could not unregister hotkeys: {e}")
     
     def _on_hotkey_pressed(self):
         """Callback for hotkey press (runs in keyboard listener thread)."""
-        print("ALT+F2 pressed - starting capture...")
+        logger.info("ALT+F2 pressed - starting capture...")
         # Queue the capture on the Qt main thread to avoid threading issues
         QTimer.singleShot(0, self.start_capture)
     
     def start_capture(self):
         """Start the screen capture process (must run on Qt main thread)."""
         try:
-            print("Capturing screen...")
+            logger.info("Capturing screen...")
             # Take screenshot of primary screen using the most reliable method
             screen = QGuiApplication.primaryScreen()
             if screen is None:
-                print("Error: No screen found")
+                logger.error("No screen found")
                 return
             
             # Try multiple methods to capture screen (for cross-platform compatibility)
@@ -204,7 +212,7 @@ class ScreenCaptureApp:
                                                    screen.geometry().width(),
                                                    screen.geometry().height())
             except Exception as e:
-                print(f"Method 1 failed: {e}")
+                logger.debug(f"Screen capture method 1 failed: {e}")
             
             # Method 2: Use desktop widget (fallback)
             if self.screenshot is None or self.screenshot.isNull():
@@ -212,7 +220,7 @@ class ScreenCaptureApp:
                     desktop = QApplication.desktop()
                     self.screenshot = screen.grabWindow(desktop.winId())
                 except Exception as e:
-                    print(f"Method 2 failed: {e}")
+                    logger.debug(f"Screen capture method 2 failed: {e}")
             
             # Method 3: Use screen geometry directly (last resort)
             if self.screenshot is None or self.screenshot.isNull():
@@ -222,22 +230,20 @@ class ScreenCaptureApp:
                                                        geometry.x(), geometry.y(),
                                                        geometry.width(), geometry.height())
                 except Exception as e:
-                    print(f"Method 3 failed: {e}")
+                    logger.debug(f"Screen capture method 3 failed: {e}")
             
             if self.screenshot is None or self.screenshot.isNull():
-                print("Error: All screenshot capture methods failed")
+                logger.error("All screenshot capture methods failed")
                 return
             
-            print(f"Screenshot captured: {self.screenshot.width()}x{self.screenshot.height()}")
+            logger.info(f"Screenshot captured successfully: {self.screenshot.width()}x{self.screenshot.height()}")
             
             # Show selection overlay
             self.overlay = SelectionOverlay(self.screenshot)
             self.overlay.selection_made.connect(self.on_selection_made)
-            print("Selection overlay shown")
+            logger.debug("Selection overlay displayed")
         except Exception as e:
-            print(f"Error capturing screen: {e}")
-            import traceback
-            traceback.print_exc()
+            logger.error(f"Error capturing screen: {e}", exc_info=True)
         
     def on_selection_made(self, rect):
         """Handle the selection completion."""
