@@ -24,12 +24,12 @@ if errorlevel 1 (
     echo.
     echo Installing dependencies...
     echo.
-    pip install -r requirements.txt
+    python -m pip install -r requirements.txt
     if errorlevel 1 (
         echo.
         echo Error: Failed to install dependencies
         echo.
-        echo Please try manually running: pip install -r requirements.txt
+        echo Please try manually running: python -m pip install -r requirements.txt
         echo.
         pause
         exit /b 1
@@ -51,7 +51,7 @@ if errorlevel 1 (
     echo.
     echo Please check the error message above for details.
     echo If you see import errors, try reinstalling dependencies:
-    echo   pip install -r requirements.txt
+    echo   python -m pip install -r requirements.txt
     echo.
     pause
 )
